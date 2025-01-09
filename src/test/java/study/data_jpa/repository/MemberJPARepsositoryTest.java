@@ -63,4 +63,76 @@ class MemberJPARepsositoryTest {
         assertThat(deletedCount).isEqualTo(0);
 
     }
+
+    @Test
+    public void findByUsernameAndAgeGreaterThen() {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("AAA", 20);
+
+        memberJPARepsository.save(m1);
+        memberJPARepsository.save(m2);
+
+
+        List<Member> result = memberJPARepsository.findByUsernameAndAgeGreaterThen("AAA", 15);// m2
+
+        assertThat(result.get(0).getUsername()).isEqualTo("AAA");
+        assertThat(result.get(0).getAge()).isEqualTo(20);
+        assertThat(result.size()).isEqualTo(1);
+
+    }
+
+    @Test
+    public void testNamedQuery() {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+
+        memberJPARepsository.save(m1);
+        memberJPARepsository.save(m2);
+
+        List<Member> result = memberJPARepsository.findByUsername("AAA");
+        Member findMember = result.get(0);
+        assertThat(findMember).isEqualTo(m1);
+
+    }
+
+    @Test
+    public void paging() {
+
+        //given
+        memberJPARepsository.save(new Member("member1", 10));
+        memberJPARepsository.save(new Member("member2", 10));
+        memberJPARepsository.save(new Member("member3", 10));
+        memberJPARepsository.save(new Member("member4", 10));
+        memberJPARepsository.save(new Member("member5", 10));
+
+        int age = 10;
+        int offset = 0;
+        int limit = 3;
+
+        //when
+        List<Member> members = memberJPARepsository.findByPage(age, offset, limit);
+        long totalCount = memberJPARepsository.totalCount(age);
+
+        // then
+        assertThat(members.size()).isEqualTo(3); //offset 0 ~ limit 3
+        assertThat(totalCount).isEqualTo(5);
+
+    }
+
+    @Test
+    public void bulkUpdate() {
+        //given
+        memberJPARepsository.save(new Member("member1", 10));
+        memberJPARepsository.save(new Member("member2", 19));
+        memberJPARepsository.save(new Member("member3", 20));
+        memberJPARepsository.save(new Member("member4", 21));
+        memberJPARepsository.save(new Member("member5", 40));
+
+        //when
+        int resultCount = memberJPARepsository.bulkAgePlus(20);
+
+        //then 
+        assertThat(resultCount).isEqualTo(3);
+
+    }
 }
